@@ -139,71 +139,7 @@ public class EmoteSystem extends Feature {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void initGui(GuiScreenEvent.InitGuiEvent.Post event) {
-		GuiScreen gui = event.getGui();
-		if(gui instanceof GuiChat) {
-			List<GuiButton> list = event.getButtonList();
-			list.add(new GuiButtonTranslucent(EMOTE_BUTTON_START, gui.width - 1 - EMOTE_BUTTON_WIDTH * EMOTES_PER_ROW, gui.height - 40, EMOTE_BUTTON_WIDTH * EMOTES_PER_ROW, 20, I18n.format("quark.gui.emotes")));
-
-			TIntObjectHashMap<List<EmoteDescriptor>> descriptorSorting = new TIntObjectHashMap<>();
-
-			for (EmoteDescriptor desc : EmoteHandler.emoteMap.values()) {
-				if (desc.getTier() <= ContributorRewardHandler.localPatronTier) {
-					List<EmoteDescriptor> descriptors = descriptorSorting.get(desc.getTier());
-					if (descriptors == null)
-						descriptorSorting.put(desc.getTier(), descriptors = Lists.newArrayList());
-
-					descriptors.add(desc);
-				}
-			}
-
-			int rows = 0;
-
-			int i = 0;
-			int row = 0;
-			int tierRow, rowPos;
-
-			int[] keys = descriptorSorting.keys();
-			Arrays.sort(keys);
-
-
-			for (int tier : keys) {
-				List<EmoteDescriptor> descriptors = descriptorSorting.get(tier);
-				if (descriptors != null) {
-					rows += descriptors.size() / 3;
-					if (descriptors.size() % 3 != 0)
-						rows++;
-				}
-			}
-
-			for (int tier : keys) {
-				rowPos = 0;
-				tierRow = 0;
-				List<EmoteDescriptor> descriptors = descriptorSorting.get(tier);
-				if (descriptors != null) {
-					for (EmoteDescriptor desc : descriptors) {
-						int rowSize = Math.min(descriptors.size() - tierRow * EMOTES_PER_ROW, EMOTES_PER_ROW);
-
-						int x = gui.width - (((rowPos + 1) * 2 + EMOTES_PER_ROW - rowSize) * EMOTE_BUTTON_WIDTH / 2 + 1);
-						int y = gui.height - (40 + EMOTE_BUTTON_WIDTH * (rows - row));
-
-						GuiButton button = new GuiButtonEmote(EMOTE_BUTTON_START + i + 1, x, y, desc);
-						button.visible = emotesVisible;
-						button.enabled = emotesVisible;
-						list.add(button);
-
-						i++;
-
-						if (++rowPos == EMOTES_PER_ROW) {
-							tierRow++;
-							row++;
-							rowPos = 0;
-						}
-					}
-				}
-				if (rowPos != 0)
-					row++;
-			}
-		}
+		
 	}
 
 	@SubscribeEvent
@@ -245,37 +181,7 @@ public class EmoteSystem extends Feature {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void drawHUD(RenderGameOverlayEvent.Post event) {
-		if(event.getType() == ElementType.ALL) {
-			Minecraft mc = Minecraft.getMinecraft();
-			ScaledResolution res = event.getResolution();
-			EmoteBase emote = EmoteHandler.getPlayerEmote(mc.player);
-			if(emote != null && emote.timeDone < emote.totalTime) {
-				ResourceLocation resource = emote.desc.texture;
-				int x = res.getScaledWidth() / 2 - 16;
-				int y = res.getScaledHeight() / 2 - 60;
-				float transparency = 1F;
-				float tween = 5F;
 
-				if(emote.timeDone < tween)
-					transparency = emote.timeDone / tween;
-				else if(emote.timeDone > emote.totalTime - tween)
-					transparency = (emote.totalTime - emote.timeDone) / tween;
-
-				GlStateManager.pushMatrix();
-				GlStateManager.disableLighting();
-				GlStateManager.enableBlend();
-				GlStateManager.disableAlpha();
-
-				GlStateManager.color(1F, 1F, 1F, transparency);
-				mc.getTextureManager().bindTexture(resource);
-				GuiScreen.drawModalRectWithCustomSizedTexture(x, y, 0, 0, 32, 32, 32, 32);
-				GlStateManager.enableBlend();
-
-				String name = I18n.format(emote.desc.getTranslationKey());
-				mc.fontRenderer.drawStringWithShadow(name, res.getScaledWidth() / 2f - mc.fontRenderer.getStringWidth(name) / 2f, y + 34, 0xFFFFFF + (((int) (transparency * 255F)) << 24));
-				GlStateManager.popMatrix();
-			}
-		}
 	}
 
 	@SubscribeEvent
