@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import net.minecraft.util.text.TextComponentTranslation;
+
 public class EmoteSystem extends Feature {
 
 	private static final String[] EMOTE_NAMES = new String[] {
@@ -176,7 +178,7 @@ public class EmoteSystem extends Feature {
 					return;
 				}
 		}
-	}
+	}	
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)

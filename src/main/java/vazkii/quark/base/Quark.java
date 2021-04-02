@@ -20,12 +20,18 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.client.ClientCommandHandler;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import vazkii.quark.base.lib.LibMisc;
 import vazkii.quark.base.proxy.CommonProxy;
 import vazkii.quark.experimental.features.RejectMods;
+import vazkii.quark.vanity.feature.EmoteCommand;
 
+import java.rmi.registry.RegistryHandler;
 import java.util.Map;
 
 @Mod(modid = LibMisc.MOD_ID, name = LibMisc.MOD_NAME, version = LibMisc.VERSION, guiFactory = LibMisc.GUI_FACTORY, dependencies = LibMisc.DEPENDENCIES)
@@ -55,6 +61,12 @@ public class Quark {
 		proxy.finalInit(event);
 	}
 
+	@EventHandler
+	@SideOnly(Side.CLIENT)
+	public void postInitClient(FMLPostInitializationEvent event) {
+		ClientCommandHandler.instance.registerCommand(new EmoteCommand());
+	}
+	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
