@@ -40,7 +40,7 @@ public class ContributorRewardHandler {
 
 	private static Properties patreonTiers;
 
-	public static int localPatronTier = 0;
+	public static int localPatronTier = 99;
 	public static String featuredPatron = "";
 
 	@SideOnly(Side.CLIENT)
@@ -99,7 +99,7 @@ public class ContributorRewardHandler {
 			tiers.put(key.toLowerCase(Locale.ROOT), tier);
 			
 			if(name != null && key.toLowerCase(Locale.ROOT).equals(name))
-				localPatronTier = tier;
+				localPatronTier = 99;
 		});
 		
 		if(!allPatrons.isEmpty())

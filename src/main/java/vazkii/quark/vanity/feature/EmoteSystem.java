@@ -12,6 +12,7 @@ package vazkii.quark.vanity.feature;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+
 import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -82,7 +83,7 @@ public class EmoteSystem extends Feature {
 	public static final int EMOTE_BUTTON_WIDTH = 25;
 	public static final int EMOTES_PER_ROW = 3;
 
-	private static final List<String> EMOTE_NAME_LIST = Lists.newArrayList(EMOTE_NAMES);
+	private static final List<String> EMOTE_NAME_LIST = Lists.newArrayList(getEmoteNames());
 
 	private static final int EMOTE_BUTTON_START = 1800;
 	public static boolean emotesVisible = false;
@@ -100,7 +101,7 @@ public class EmoteSystem extends Feature {
 	@Override
 	public void setupConfig() {
 		enableKeybinds = loadPropBool("Enable Keybinds", "Should keybinds for emotes be generated? (They're all unbound by default)", true);
-		enabledEmotes = loadPropStringList("Enabled Emotes", "The enabled default emotes. Remove from this list to disable them. You can also re-order them, if you feel like it.", EMOTE_NAMES);
+		enabledEmotes = loadPropStringList("Enabled Emotes", "The enabled default emotes. Remove from this list to disable them. You can also re-order them, if you feel like it.", getEmoteNames());
 		customEmotes = loadPropStringList("Custom Emotes", "The list of Custom Emotes to be loaded.\nWatch the tutorial on Custom Emotes to learn how to make your own: https://youtu.be/ourHUkan6aQ", new String[0]);
 
 		customEmoteDebug = loadPropBool("Custom Emote Dev Mode", "Enable this to make custom emotes read the file every time they're triggered so you can edit on the fly.\nDO NOT ship enabled this in a modpack, please.", false);
@@ -138,10 +139,74 @@ public class EmoteSystem extends Feature {
 			ModKeybinds.initEmoteKeybinds();
 	}
 
-	@SubscribeEvent
+/*	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void initGui(GuiScreenEvent.InitGuiEvent.Post event) {
-		
+		GuiScreen gui = event.getGui();
+		if(gui instanceof GuiChat) {
+			List<GuiButton> list = event.getButtonList();
+			list.add(new GuiButtonTranslucent(EMOTE_BUTTON_START, gui.width - 1 - EMOTE_BUTTON_WIDTH * EMOTES_PER_ROW, gui.height - 40, EMOTE_BUTTON_WIDTH * EMOTES_PER_ROW, 20, I18n.format("quark.gui.emotes")));
+
+			TIntObjectHashMap<List<EmoteDescriptor>> descriptorSorting = new TIntObjectHashMap<>();
+
+			for (EmoteDescriptor desc : EmoteHandler.emoteMap.values()) {
+				if (desc.getTier() <= ContributorRewardHandler.localPatronTier) {
+					List<EmoteDescriptor> descriptors = descriptorSorting.get(desc.getTier());
+					if (descriptors == null)
+						descriptorSorting.put(desc.getTier(), descriptors = Lists.newArrayList());
+
+					descriptors.add(desc);
+				}
+			}
+
+			int rows = 0;
+
+			int i = 0;
+			int row = 0;
+			int tierRow, rowPos;
+
+			int[] keys = descriptorSorting.keys();
+			Arrays.sort(keys);
+
+
+			for (int tier : keys) {
+				List<EmoteDescriptor> descriptors = descriptorSorting.get(tier);
+				if (descriptors != null) {
+					rows += descriptors.size() / 3;
+					if (descriptors.size() % 3 != 0)
+						rows++;
+				}
+			}
+
+			for (int tier : keys) {
+				rowPos = 0;
+				tierRow = 0;
+				List<EmoteDescriptor> descriptors = descriptorSorting.get(tier);
+				if (descriptors != null) {
+					for (EmoteDescriptor desc : descriptors) {
+						int rowSize = Math.min(descriptors.size() - tierRow * EMOTES_PER_ROW, EMOTES_PER_ROW);
+
+						int x = gui.width - (((rowPos + 1) * 2 + EMOTES_PER_ROW - rowSize) * EMOTE_BUTTON_WIDTH / 2 + 1);
+						int y = gui.height - (40 + EMOTE_BUTTON_WIDTH * (rows - row));
+
+						GuiButton button = new GuiButtonEmote(EMOTE_BUTTON_START + i + 1, x, y, desc);
+						button.visible = emotesVisible;
+						button.enabled = emotesVisible;
+						list.add(button);
+
+						i++;
+
+						if (++rowPos == EMOTES_PER_ROW) {
+							tierRow++;
+							row++;
+							rowPos = 0;
+						}
+					}
+				}
+				if (rowPos != 0)
+					row++;
+			}
+		}
 	}
 
 	@SubscribeEvent
@@ -164,7 +229,7 @@ public class EmoteSystem extends Feature {
 			String name = ((GuiButtonEmote) button).desc.getRegistryName();
 			NetworkHandler.INSTANCE.sendToServer(new MessageRequestEmote(name));
 		}
-	}
+	}*/
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
@@ -214,6 +279,14 @@ public class EmoteSystem extends Feature {
 	@Override
 	public boolean requiresMinecraftRestartToEnable() {
 		return true;
+	}
+
+	public static String[] getEmoteNames() {
+		return EMOTE_NAMES;
+	}
+	
+	public static Set<String> getPatreonEmoteNames() {
+		return PATREON_EMOTES;
 	}
 
 }

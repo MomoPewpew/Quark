@@ -57,7 +57,7 @@ public class EmoteDescriptor {
 	}
 	
 	public int getTier() {
-		return tier;
+		return 0;
 	}
 
 	public ResourceLocation getTierTexture() {
