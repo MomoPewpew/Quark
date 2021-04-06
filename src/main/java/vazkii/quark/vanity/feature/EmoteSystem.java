@@ -50,9 +50,12 @@ import vazkii.quark.vanity.client.gui.GuiButtonEmote;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.util.text.TextComponentTranslation;
+
+import org.lwjgl.input.Keyboard;
 
 public class EmoteSystem extends Feature {
 
@@ -96,7 +99,7 @@ public class EmoteSystem extends Feature {
 
 	private String[] enabledEmotes;
 	private String[] customEmotes;
-	private boolean enableKeybinds;
+	private static boolean enableKeybinds;
 
 	@Override
 	public void setupConfig() {
@@ -239,11 +242,29 @@ public class EmoteSystem extends Feature {
 			for(KeyBinding key : ModKeybinds.emoteKeys.keySet())
 				if(key.isKeyDown()) {
 					String emote = ModKeybinds.emoteKeys.get(key);
-					NetworkHandler.INSTANCE.sendToServer(new MessageRequestEmote(emote));
-					return;
+					Boolean emoting = false;
+					
+/*					if(EmoteHandler.getPlayeremotes().containsKey(mc.player.getName())) {
+						for (Entry<String, EmoteBase> pair : EmoteHandler.getPlayeremotes().entrySet()) {
+							if (pair.getKey() == mc.player.getName() && pair.getValue().desc.name == emote) {
+								emoting = true;
+							}
+						}
+					}*/
+					
+					if(EmoteHandler.getPlayeremotes().containsKey(mc.player.getName())) {
+						if (EmoteHandler.getPlayerEmote(mc.player).desc.name == emote) {
+							emoting = true;
+						}
+					}
+					
+					if (emoting == false) {
+						NetworkHandler.INSTANCE.sendToServer(new MessageRequestEmote(emote));
+						return;
+					}
 				}
 		}
-	}	
+	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
@@ -287,6 +308,10 @@ public class EmoteSystem extends Feature {
 	
 	public static Set<String> getPatreonEmoteNames() {
 		return PATREON_EMOTES;
+	}
+
+	public static boolean isEnableKeybinds() {
+		return enableKeybinds;
 	}
 
 }

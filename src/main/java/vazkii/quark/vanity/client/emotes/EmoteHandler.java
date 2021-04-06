@@ -21,13 +21,18 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import vazkii.arl.network.NetworkHandler;
+import vazkii.quark.base.client.ModKeybinds;
 import vazkii.quark.base.lib.LibObfuscation;
+import vazkii.quark.base.network.message.MessageRequestEmote;
+import vazkii.quark.vanity.feature.EmoteSystem;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -138,6 +143,16 @@ public final class EmoteHandler {
 				if(done) {
 					playerEmotes.remove(name);
 					resetPlayer(player);
+					
+					Minecraft mc = Minecraft.getMinecraft();
+					if(mc.inGameHasFocus && EmoteSystem.isEnableKeybinds()) {
+						for(KeyBinding key : ModKeybinds.emoteKeys.keySet())
+							if(key.isKeyDown()) {
+								String emote2 = ModKeybinds.emoteKeys.get(key);
+								NetworkHandler.INSTANCE.sendToServer(new MessageRequestEmote(emote2));
+								return;
+								}
+							}
 				} else
 					emote.update();
 			} else resetPlayer(player);
@@ -220,6 +235,10 @@ public final class EmoteHandler {
 	private static void resetPart(ModelRenderer part) {
 		if(part != null)
 			part.rotateAngleZ = part.offsetX = part.offsetY = part.offsetZ = 0F;
+	}
+
+	public static Map<String, EmoteBase> getPlayeremotes() {
+		return playerEmotes;
 	}
 
 }
