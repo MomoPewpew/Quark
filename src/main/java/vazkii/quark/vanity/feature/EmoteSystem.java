@@ -33,6 +33,7 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.MouseInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -54,8 +55,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.util.text.TextComponentTranslation;
-
-import org.lwjgl.input.Keyboard;
 
 public class EmoteSystem extends Feature {
 
@@ -237,6 +236,16 @@ public class EmoteSystem extends Feature {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onKeyInput(KeyInputEvent event) {
+		onHotkey();
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onMouseInput(MouseInputEvent event) {
+		onHotkey();
+	}
+	
+	public void onHotkey() {
 		Minecraft mc = Minecraft.getMinecraft();
 		if(mc.inGameHasFocus && enableKeybinds) {
 			for(KeyBinding key : ModKeybinds.emoteKeys.keySet())
